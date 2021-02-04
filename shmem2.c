@@ -1,5 +1,5 @@
 /*
- * devmem2.c: Simple program to read/write from/to any location in memory.
+ * shmem2.c: Simple program to read/write from/to any location in shared memory file.
  *
  *  Copyright (C) 2000, Jan-Derk Bakker (jdb@lartmaker.nl)
  *  Copyright (C) 2021, Rick Wertenbroek (rick.wertenbroek@heig-vd.ch)
