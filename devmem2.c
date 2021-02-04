@@ -2,6 +2,7 @@
  * devmem2.c: Simple program to read/write from/to any location in memory.
  *
  *  Copyright (C) 2000, Jan-Derk Bakker (jdb@lartmaker.nl)
+ *  Copyright (C) 2021, Rick Wertenbroek (rick.wertenbroek@heig-vd.ch)
  *
  *
  * This software has been developed for the LART computing board
@@ -47,15 +48,15 @@
 
 int main(int argc, char **argv) {
     int fd;
-    void *map_base, *virt_addr; 
-	unsigned long read_result, writeval;
+    void *map_base, *virt_addr;
+	u_int64_t read_result, writeval;
 	off_t target;
 	int access_type = 'w';
 	
 	if(argc < 2) {
 		fprintf(stderr, "\nUsage:\t%s { address } [ type [ data ] ]\n"
 			"\taddress : memory address to act upon\n"
-			"\ttype    : access operation type : [b]yte, [h]alfword, [w]ord\n"
+			"\ttype    : access operation type : [b]yte 8-bit, [h]alfword 16-bit, [w]ord 32-bit, [d]oubleword 64-bit\n"
 			"\tdata    : data to be written\n\n",
 			argv[0]);
 		exit(1);
@@ -79,38 +80,45 @@ int main(int argc, char **argv) {
     virt_addr = map_base + (target & MAP_MASK);
     switch(access_type) {
 		case 'b':
-			read_result = *((unsigned char *) virt_addr);
+			read_result = *((u_int8_t *) virt_addr);
 			break;
 		case 'h':
-			read_result = *((unsigned short *) virt_addr);
+			read_result = *((u_int16_t *) virt_addr);
 			break;
 		case 'w':
-			read_result = *((unsigned long *) virt_addr);
+			read_result = *((u_int32_t *) virt_addr);
+			break;
+		case 'd':
+			read_result = *((u_int64_t *) virt_addr);
 			break;
 		default:
 			fprintf(stderr, "Illegal data type '%c'.\n", access_type);
 			exit(2);
 	}
-    printf("Value at address 0x%X (%p): 0x%X\n", target, virt_addr, read_result); 
+    printf("Value at address 0x%lX (%p): 0x%llX\n", target, virt_addr, read_result);
     fflush(stdout);
 
 	if(argc > 3) {
-		writeval = strtoul(argv[3], 0, 0);
+		writeval = strtoull(argv[3], 0, 0);
 		switch(access_type) {
 			case 'b':
-				*((unsigned char *) virt_addr) = writeval;
-				read_result = *((unsigned char *) virt_addr);
+				*((u_int8_t *) virt_addr) = writeval;
+				read_result = *((u_int8_t *) virt_addr);
 				break;
 			case 'h':
-				*((unsigned short *) virt_addr) = writeval;
-				read_result = *((unsigned short *) virt_addr);
+				*((u_int16_t *) virt_addr) = writeval;
+				read_result = *((u_int16_t *) virt_addr);
 				break;
 			case 'w':
-				*((unsigned long *) virt_addr) = writeval;
-				read_result = *((unsigned long *) virt_addr);
+				*((u_int32_t *) virt_addr) = writeval;
+				read_result = *((u_int32_t *) virt_addr);
+				break;
+			case 'd':
+				*((u_int64_t *) virt_addr) = writeval;
+				read_result = *((u_int64_t *) virt_addr);
 				break;
 		}
-		printf("Written 0x%X; readback 0x%X\n", writeval, read_result); 
+		printf("Written 0x%llX; readback 0x%llX\n", writeval, read_result);
 		fflush(stdout);
 	}
 	
