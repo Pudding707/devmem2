@@ -1,0 +1,21 @@
+name: Devmem2 Build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: make
+      run: make -f /dev/null devmem2
+
+    - name: check executable
+      run: bash -c "[[ -x devmem2 ]]"
